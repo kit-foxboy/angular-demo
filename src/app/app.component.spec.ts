@@ -19,15 +19,13 @@ describe('AppComponent', () => {
 
   it('should contain the app-nav component', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
     const appNav = fixture.debugElement.nativeElement.querySelector('app-nav');
     expect(appNav).not.toBeNull();
   });
 
-  it('should contain the app-home component', () => {
+  it('should contain the router-outlet component', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    const app = fixture.componentInstance;
-    const appHome = fixture.debugElement.nativeElement.querySelector('app-home');
-    expect(appHome).not.toBeNull();
+    const router = fixture.debugElement.nativeElement.querySelector('router-outlet');
+    expect(router).not.toBeNull();
   });
 });
