@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { NavComponent } from "./nav/nav.component";
+import { NavComponent } from "./components/nav/nav.component";
 import { AccountService } from './_services/account.service';
-import { HomeComponent } from "./home/home.component";
+import { HomeComponent } from "./components/home/home.component";
 
 @Component({
   selector: 'app-root',

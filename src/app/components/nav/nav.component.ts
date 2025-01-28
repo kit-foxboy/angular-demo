@@ -1,7 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { User } from '../_models/user';
-import { AccountService } from '../_services/account.service';
+import { AccountService } from '../../_services/account.service';
 import { NgIf } from '@angular/common';
 import { BsDropdownMenuDirective, BsDropdownModule } from 'ngx-bootstrap/dropdown';
 
@@ -22,6 +21,7 @@ export class NavComponent {
     this.accountService.login(this.model).subscribe({
       next: (response) => {
         console.log(response);
+        return response;
       },
       error: (error) => {
         console.log(error);

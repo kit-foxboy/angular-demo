@@ -1,21 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import { AppComponent } from './app.component';
-import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 
 describe('AppComponent', () => {
-
-  
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [AppComponent],
-      providers: [
-        provideHttpClient(),
-        provideHttpClientTesting()
-      ]
+      providers: [provideHttpClient(), provideHttpClientTesting()],
     }).compileComponents();
-
-    const httpTesting = TestBed.inject(HttpTestingController);
   });
 
   it('should create the app', () => {
@@ -24,16 +17,17 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it(`should have the 'client' title`, () => {
+  it('should contain the app-nav component', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
-    expect(app.title).toEqual('Vore Dash');
+    const appNav = fixture.debugElement.nativeElement.querySelector('app-nav');
+    expect(appNav).not.toBeNull();
   });
 
-  it('should render title', () => {
+  it('should contain the app-home component', () => {
     const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Vore Dash');
+    const app = fixture.componentInstance;
+    const appHome = fixture.debugElement.nativeElement.querySelector('app-home');
+    expect(appHome).not.toBeNull();
   });
 });
