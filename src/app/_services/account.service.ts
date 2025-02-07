@@ -42,4 +42,10 @@ export class AccountService {
     localStorage.removeItem('user');
     this.currentUser.set(null);
   }
+
+  testServerErrors() {
+    return this.http.get(this.baseUrl + 'exceptions/server-error').subscribe(response => {
+      console.log(response);
+    });
+  }
 }

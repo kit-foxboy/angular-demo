@@ -7,6 +7,8 @@ import { of, throwError } from 'rxjs';
 import { AccountService } from '../../_services/account.service';
 import { User } from '../../_models/user';
 import { signal } from '@angular/core';
+import { provideToastr } from 'ngx-toastr';
+import { provideRouter } from '@angular/router';
 
 describe('NavComponent', () => {
   let component: NavComponent;
@@ -24,8 +26,12 @@ describe('NavComponent', () => {
       imports: [NavComponent],
       providers: [
         { provide: AccountService, useValue: accountServiceSpy },
+        provideRouter([]),
         provideHttpClient(),
         provideHttpClientTesting(),
+        provideToastr({
+          positionClass: 'toast-bottom-right',
+        })
       ],
     }).compileComponents();
 
