@@ -6,12 +6,14 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { HttpClient } from '@angular/common/http';
 import { provideToastr, ToastrModule, ToastrService } from 'ngx-toastr';
 import { Router } from '@angular/router';
+import { Subscriber, Subscription } from 'rxjs';
 
 describe('errorInterceptor', () => {
   let httpMock: HttpTestingController;
   let toastrService: ToastrService;
   let router: Router;
   let httpClient: HttpClient;
+  let observable: Subscription;
 
   beforeEach(() => {
     const toastrSpy = jasmine.createSpyObj<ToastrService>('ToastrService', ['error']);
