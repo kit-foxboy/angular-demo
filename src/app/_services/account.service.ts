@@ -9,7 +9,6 @@ import { environment } from '../../environments/environment';
 })
 export class AccountService {
   private http = inject(HttpClient);
-  private subscription = new Subscription();
   baseUrl = environment.apiUrl;
   currentUser = signal<User | null>(null);
 

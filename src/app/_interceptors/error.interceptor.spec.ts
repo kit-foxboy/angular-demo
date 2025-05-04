@@ -13,9 +13,9 @@ describe('errorInterceptor', () => {
   let toastrService: ToastrService;
   let router: Router;
   let httpClient: HttpClient;
-  let observable: Subscription;
 
   beforeEach(() => {
+    // Create a spy for the ToastrService and Router
     const toastrSpy = jasmine.createSpyObj<ToastrService>('ToastrService', ['error']);
     const routerSpy = jasmine.createSpyObj<Router>('Router', ['navigateByUrl'])
 
@@ -34,6 +34,7 @@ describe('errorInterceptor', () => {
       ]
     });
 
+    // Inject the required services
     httpMock = TestBed.inject(HttpTestingController);
     toastrService = TestBed.inject(ToastrService) as jasmine.SpyObj<ToastrService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
@@ -41,7 +42,29 @@ describe('errorInterceptor', () => {
   });
 
   afterEach(() => {
+    // Ensure that there are no outstanding requests after each test
     httpMock.verify();
+  });
+
+  it('should not intercept successful responses', () => {
+    const mockSuccessData = { data: 'success' };
+
+    // Mock the HTTP GET request
+    httpClient.get('/test').subscribe({
+      next: (response) => {
+        expect(response).toEqual(mockSuccessData);
+      },
+      error: () => fail('should not have failed'),
+    });
+
+    // Simulate a successful response
+    const req = httpMock.expectOne('/test');
+    expect(req.request.method).toBe('GET');
+    req.flush(mockSuccessData);
+
+    // Ensure no side effects from the error interceptor occurred
+    expect(toastrService.error).not.toHaveBeenCalled();
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
   });
 
   it('should handle 400 error with validation errors', () => {
@@ -59,44 +82,70 @@ describe('errorInterceptor', () => {
   });
 
   it('should handle 400 error without validation errors', () => {
-
+    // Mock the HTTP GET request
+    const mockErrorBody = { message: 'Specific bad request message', status: 400 };
     httpClient.get('/test').subscribe({
       next: () => fail('should have failed with 400 error'),
       error: (error) => {
-        expect(error).toBeTruthy();
+       expect(error).toBeTruthy();
+       expect(error.status).toBe(400);
+       expect(error.error).toEqual(mockErrorBody);
       }
     });
     
+    // Simulate a 400 error response
     const req = httpMock.expectOne('/test');
-    req.flush({ message: 'Bad Request', status: 400 }, { status: 400, statusText: 'Bad Request' });
+    req.flush(mockErrorBody, { status: 400, statusText: 'Bad Request' });
     
-    expect(toastrService.error).toHaveBeenCalled();
+    expect(toastrService.error).toHaveBeenCalledWith(mockErrorBody as any, '400');
   });
 
   it('should handle 401 error', () => {
-
+    // Mock the HTTP GET request
     httpClient.get('/test').subscribe({
       next: () => fail('should have failed with 401 error'),
       error: (error) => {
         expect(error).toBeTruthy();
+        expect(error.status).toBe(401);
       }
     });
 
+    // Simulate a 401 error response
     const req = httpMock.expectOne('/test');
     req.flush({}, { status: 401, statusText: 'Unauthorized' });
 
     expect(toastrService.error).toHaveBeenCalledWith('Unauthorized', '401');
   });
 
-  it('should handle 404 error', () => {
+  it('should handle default error', () => {
+    // Mock the HTTP GET request
+    httpClient.get('/test').subscribe({
+      next: () => fail('should have failed with default error'),
+      error: (error) => {
+        expect(error).toBeTruthy();
+        expect(error.status).toBe(505);
+      }
+    });
 
+    // Simulate a default error response
+    // This is a custom error code for testing purposes
+    const req = httpMock.expectOne('/test');
+    req.flush({}, { status: 505, statusText: 'Internal Server Error' });
+    
+    expect(toastrService.error).toHaveBeenCalledWith('Something unexpected went wrong. A little oopsie, you might say');
+  });
+
+  it('should handle 404 error', () => {
+    // Mock the HTTP GET request
     httpClient.get('/test').subscribe({
       next: () => fail('should have failed with 404 error'),
       error: (error) => {
         expect(error).toBeTruthy();
+        expect(error.status).toBe(404);
       }
     });
 
+    // Simulate a 404 error response
     const req = httpMock.expectOne('/test');
     req.flush({}, { status: 404, statusText: 'Not Found' });
 
@@ -104,29 +153,36 @@ describe('errorInterceptor', () => {
   });
 
   it('should handle 500 error', () => {
-
+    // Mock the HTTP GET request
+    const mockErrorBody = { message: 'Server Error' };
     httpClient.get('/test').subscribe({
       next: () => fail('should have failed with 500 error'),
       error: (error) => {
         expect(error).toBeTruthy();
+        expect(error.status).toBe(500);
+        expect(error.error).toEqual(mockErrorBody);
       }
     });
 
+    // Simulate a 500 error response
     const req = httpMock.expectOne('/test');
-    req.flush({ message: 'Server Error' }, { status: 500, statusText: 'Internal Server Error' });
+    req.flush(mockErrorBody, { status: 500, statusText: 'Internal Server Error' });
 
     expect(router.navigateByUrl).toHaveBeenCalledWith('/server-error', { state: { error: { message: 'Server Error' } } });
   });
 
   it('should handle unexpected error', () => {
-
+    // Mock the HTTP GET request
     httpClient.get('/test').subscribe({
       next: () => fail('should have failed with unexpected error'),
       error: (error) => {
         expect(error).toBeTruthy();
+        expect(error.status).toBe(418);
       }
     });
 
+    // Simulate an unexpected error response
+    // This is a custom error code for testing purposes
     const req = httpMock.expectOne('/test');
     req.flush({}, { status: 418, statusText: "I'm a teapot" });
 
