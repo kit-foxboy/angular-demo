@@ -9,9 +9,9 @@ import { AccountService } from './_services/account.service';
 
 interface MockSignal {
   (): any; // Callable signature
-  set: jasmine.Spy<(val: any) => void>;
-  update: jasmine.Spy<() => void>;
-  mutate: jasmine.Spy<() => void>;
+  set?: jasmine.Spy<(val: any) => void>;
+  update?: jasmine.Spy<() => void>;
+  mutate?: jasmine.Spy<() => void>;
 }
 
 describe('AppComponent', () => {
@@ -27,7 +27,7 @@ describe('AppComponent', () => {
 
     // Create a base function that returns the current user value
     mockCurrentUserSignal = jasmine
-      .createSpy('currentUserSignal')
+      .createSpy('MockSignal')
       .and.callFake(() => currentUserValue);
 
     // Add signal methods
