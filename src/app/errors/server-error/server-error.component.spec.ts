@@ -9,6 +9,7 @@ describe('ServerErrorComponent', () => {
   let mockRouter: any;
 
   beforeEach(async () => {
+    // Mock the Router to simulate navigation extras
     mockRouter = {
       getCurrentNavigation: jasmine
         .createSpy('getCurrentNavigation')
@@ -34,6 +35,7 @@ describe('ServerErrorComponent', () => {
     fixture.detectChanges();
   });
 
+  // Component tests
   it('should create', () => {
     expect(component).toBeTruthy();
   });
@@ -43,12 +45,17 @@ describe('ServerErrorComponent', () => {
   });
 
   it('should handle missing error in navigation extras', () => {
+    // Mock the Router to simulate missing error in navigation extras
     mockRouter.getCurrentNavigation.and.returnValue({
       extras: {},
     });
+
+    // Recreate the component to trigger constructor
     fixture = TestBed.createComponent(ServerErrorComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
+
+    // Make assertions
     expect(component.error).toBeUndefined();
   });
 });

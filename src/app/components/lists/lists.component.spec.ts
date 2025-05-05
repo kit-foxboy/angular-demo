@@ -17,6 +17,7 @@ describe('ListsComponent', () => {
     fixture.detectChanges();
   });
 
+  // Component tests
   it('should create', () => {
     expect(component).toBeTruthy();
   });

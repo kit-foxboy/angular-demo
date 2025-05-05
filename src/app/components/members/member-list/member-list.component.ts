@@ -18,6 +18,8 @@ export class MemberListComponent implements OnInit {
     this.loadMembers();
   }
 
+  // Load the list of members using the memberService
+  // and set the main photo for each member
   loadMembers() {
     this.memberService.getMembers().pipe(first()).subscribe({
       next: (members) => {

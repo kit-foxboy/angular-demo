@@ -13,6 +13,8 @@ export class RegisterComponent {
   model: any = {};
   onCancel = output<boolean>();
 
+  // Attempt to register a new user using the account service
+  // If successful, emit a cancel event to close the registration form
   register() {
     this.accountService.register(this.model).subscribe({
       next: response => {

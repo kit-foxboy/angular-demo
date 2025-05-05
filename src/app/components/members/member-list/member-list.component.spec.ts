@@ -3,26 +3,22 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { MemberListComponent } from './member-list.component';
 import { provideHttpClient } from '@angular/common/http';
 import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { MembersService } from '../../../_services/members.service';
 import { Member } from '../../../_models/member';
 
 describe('MemberListComponent', () => {
   let component: MemberListComponent;
   let fixture: ComponentFixture<MemberListComponent>;
-  let membersService: jasmine.SpyObj<MembersService>;
+  let membersService: MembersService;
 
   beforeEach(async () => {
-    const membersServiceSpy = jasmine.createSpyObj('MembersService', [
-      'getMembers',
-    ]);
 
     await TestBed.configureTestingModule({
       imports: [MemberListComponent],
       providers: [
         provideHttpClient(),
-        provideHttpClientTesting(),
-        { provide: MembersService, useValue: membersServiceSpy },
+        provideHttpClientTesting()
       ],
     }).compileComponents();
 
@@ -30,14 +26,17 @@ describe('MemberListComponent', () => {
     component = fixture.componentInstance;
     membersService = TestBed.inject(
       MembersService
-    ) as jasmine.SpyObj<MembersService>;
+    );
+    
   });
 
+  // Tests for the MemberListComponent
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
   it('should load members on init', () => {
+    // Mock the members service to return a list of members
     const mockMembers: Member[] = [
       {
         id: 1,
@@ -82,13 +81,35 @@ describe('MemberListComponent', () => {
         isPredator: false
       },
     ];
-    membersService.getMembers.and.returnValue(of(mockMembers));
 
+    // Mock the membersService.getMembers method to return the mock members
+    spyOn(membersService, 'getMembers').and.callFake(() => {
+      return of(mockMembers);
+    });
+
+    // Call ngOnInit to trigger the loading of members
     component.ngOnInit();
 
+    // Make assertions
     expect(membersService.getMembers).toHaveBeenCalled();
     expect(component.members.length).toBe(2);
     expect(component.members[0].photos[0].url).toBe('photo1.jpg');
     expect(component.members[1].photos[0].url).toBe('photo2.jpg');
+  });
+
+  it('should log an error if getMembers fails', () => {
+    // Mock the members service to return an error
+    const error: Error = new Error('Error loading members');
+    spyOn(console, 'error');
+
+    // Mock the membersService.getMembers method to return an error
+    spyOn(membersService, 'getMembers').and.returnValue(throwError(() => error));
+
+    // Call ngOnInit to trigger the loading of members
+    component.ngOnInit();
+
+    // Make assertions
+    expect(membersService.getMembers).toHaveBeenCalled();
+    expect(console.error).toHaveBeenCalledWith(error.message, error);
   });
 });

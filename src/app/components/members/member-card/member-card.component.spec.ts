@@ -10,6 +10,9 @@ import { provideRouter } from '@angular/router';
   standalone: true,
   imports: [MemberCardComponent],
 })
+
+// This is a wrapper component to test the MemberCardComponent in isolation
+// Necessary for testing components that use @Input properties
 class WrapperComponent implements OnInit {
   member: Member | undefined;
 
@@ -34,8 +37,8 @@ class WrapperComponent implements OnInit {
         id: 0,
         url: 'photo1.jpg',
         isMain: false,
-        isNSFW: false
-      }
+        isNSFW: false,
+      },
     };
   }
 }
@@ -55,22 +58,30 @@ describe('MemberCardComponent', () => {
     fixture.detectChanges();
   });
 
+  // Component tests
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
   it('should display member photo', () => {
+    // Get the photo element from the fixture
     const photoElement =
-      fixture.debugElement.nativeElement.querySelector('img'); // Assuming there is an <img> tag for the photo
+      fixture.debugElement.nativeElement.querySelector('img');
+    
+    // Make assertions
     expect(photoElement.src).toContain('photo1.jpg');
   });
 
   it('should display placeholder if no photo is available', () => {
-    component.member!.mainPhoto = undefined; // Set mainPhoto to undefined
-    fixture.detectChanges(); // Trigger change detection
+    // Set member's mainPhoto to undefined to simulate no photo available
+    component.member!.mainPhoto = undefined;
+    fixture.detectChanges();
 
+    // Get the photo element from the fixture
     const photoElement =
-      fixture.debugElement.nativeElement.querySelector('img'); // Assuming there is an <img> tag for the photo
-    expect(photoElement.src).toContain('/assets/user.png'); // Check for placeholder image
+      fixture.debugElement.nativeElement.querySelector('img');
+    
+    // Make assertions
+    expect(photoElement.src).toContain('/assets/user.png');
   });
 });
