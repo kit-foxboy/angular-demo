@@ -29,11 +29,13 @@ describe('MembersService', () => {
     httpMock.verify();
   });
 
+  // Service tests
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
   it('should retrieve members from the API via GET', () => {
+    // Mock the response from the API
     const dummyMembers: Member[] = [
       {
         id: 1,
@@ -71,17 +73,21 @@ describe('MembersService', () => {
       },
     ];
 
+    // Mock the API call and return the dummy data
     service.getMembers().subscribe((members) => {
       expect(members.length).toBe(2);
       expect(members).toEqual(dummyMembers);
     });
-
     const req = httpMock.expectOne(`${environment.apiUrl}users`);
-    expect(req.request.method).toBe('GET');
     req.flush(dummyMembers);
+
+    // Make assertions
+    expect(req.request.method).toBe('GET');
+    expect(req.request.url).toBe(`${environment.apiUrl}users`);
   });
 
   it('should retrieve a single member from the API via GET', () => {
+    // Mock the response from the API
     const dummyMembers: Member[] = [
       {
         id: 1,
@@ -119,12 +125,15 @@ describe('MembersService', () => {
       },
     ];
 
+    // Mock the API call and return the dummy data
     service.getMember('JohnDoe').subscribe((member: Member) => {
       expect(member).toEqual(dummyMembers[0]);
     });
-
     const req = httpMock.expectOne(`${environment.apiUrl}users/JohnDoe`);
-    expect(req.request.method).toBe('GET');
     req.flush(dummyMembers[0]);
+
+    // Make assertions
+    expect(req.request.method).toBe('GET');
+    expect(req.request.url).toBe(`${environment.apiUrl}users/JohnDoe`);
   });
 });

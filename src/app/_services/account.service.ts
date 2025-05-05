@@ -12,6 +12,7 @@ export class AccountService {
   baseUrl = environment.apiUrl;
   currentUser = signal<User | null>(null);
 
+  // Make api login call and set user in local storage
   login(model: {username: string, password: string}) {
     return this.http.post<User>(this.baseUrl + 'account/login', model).pipe(
       map(user => {
@@ -25,6 +26,7 @@ export class AccountService {
     );
   }
 
+  // Make api register call and set user in local storage
   register(model: {username: string, password: string}) {
     return this.http.post<User>(this.baseUrl + 'account/register', model).pipe(
       map(user => {
@@ -38,11 +40,13 @@ export class AccountService {
     );
   }
 
+  // Remove user from local storage and set currentUser to null
   logout() {
     localStorage.removeItem('user');
     this.currentUser.set(null);
   }
 
+  // Make api call to test for server errors
   testServerErrors() {
     return this.http.get(this.baseUrl + 'exceptions/server-error').subscribe(response => {
       console.log(response);

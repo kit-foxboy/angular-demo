@@ -36,26 +36,33 @@ describe('RegisterComponent', () => {
     fixture.detectChanges();
   });
 
+  // Component tests
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
   it('should call register method of accountService on register', () => {
+    // Mock the accountService.register method to return an observable
     const mockResponse: User = { username: '', token: '' };
     accountService.register.and.returnValue(of(mockResponse));
 
+    // Call the register method
     component.register();
 
+    // Make assertions
     expect(accountService.register).toHaveBeenCalledWith(component.model);
   });
 
   it('should log error on failed register', () => {
+    // Mock the accountService.register method to return an observable with an error
     const mockError = { error: 'Registration failed' };
-    accountService.register.and.returnValue(throwError(mockError));
+    accountService.register.and.returnValue(throwError(() => mockError));
     spyOn(console, 'log');
 
+    // Call the register method
     component.register();
 
+    // Make assertions
     expect(console.log).toHaveBeenCalledWith(mockError);
   });
 });

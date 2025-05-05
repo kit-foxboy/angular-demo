@@ -18,6 +18,8 @@ export class MemberDetailComponent implements OnInit {
   member?: Member;
   images: GalleryItem[] = [];
 
+  // Get the current route parameter (username) from the URL
+  // and load the member details using the memberService
   ngOnInit() {
     const username = this.route.snapshot.paramMap.get('username');
     if (username) {
@@ -25,6 +27,7 @@ export class MemberDetailComponent implements OnInit {
     }
   }
 
+  // Load the member details using the memberService
   private loadMember(username: string) {
     this.memberService.getMember(username).subscribe(member => {
       this.member = member;

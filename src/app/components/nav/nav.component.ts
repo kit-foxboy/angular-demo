@@ -32,6 +32,8 @@ export class NavComponent {
     password: '',
   };
 
+  // Attempt to log in using the account service
+  // If successful, navigate to the members page
   login() {
     this.accountService.login(this.model).subscribe({
       next: (_) => {
@@ -43,6 +45,8 @@ export class NavComponent {
     });
   }
 
+  // Clear the user's data from the account service
+  // Then navigate to the home page
   logout() {
     this.accountService.logout();
     this.router.navigateByUrl('/');

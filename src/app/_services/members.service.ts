@@ -12,14 +12,17 @@ export class MembersService {
   private accountService = inject(AccountService);
   baseUrl = environment.apiUrl;
   
+  // Make api call to get list of members
   getMembers() {
     return this.http.get<Member[]>(this.baseUrl + 'users', this.getHttpOptions());
   }
 
+  // Make api call to get a single member by username
   getMember(username: string) {
     return this.http.get<Member>(this.baseUrl + 'users/' + username, this.getHttpOptions());
   }
 
+  // Add authoorization header to the request if needed
   getHttpOptions() {
     return {
       headers: {

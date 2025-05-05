@@ -32,17 +32,20 @@ describe('NotFoundComponent', () => {
     fixture.detectChanges();
   });
 
+  // Component tests
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
   it('should have a link to the home page', () => {
+    // Check if the link to the home page is present in the template
     const compiled = fixture.nativeElement;
     const link = compiled.querySelector('button');
     expect(link.getAttribute('routerLink')).toBe('/');
   });
 
-  it('should naviate to the home page when the link is clicked', () => {
+  it('should navigate to the home page when the link is clicked', () => {
+    // Simulate a click on the link and check if the router navigates to the home page
     const compiled = fixture.nativeElement;
     const link = compiled.querySelector('button');
     link.click();
