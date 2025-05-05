@@ -7,11 +7,18 @@ import { provideRouter } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { AccountService } from './_services/account.service';
 
+interface MockSignal {
+  (): any; // Callable signature
+  set: jasmine.Spy<(val: any) => void>;
+  update: jasmine.Spy<() => void>;
+  mutate: jasmine.Spy<() => void>;
+}
+
 describe('AppComponent', () => {
   let component: AppComponent;
   let fixture: ComponentFixture<AppComponent>;
   let accountService: AccountService;
-  let mockCurrentUserSignal: any;
+  let mockCurrentUserSignal: MockSignal;
 
   beforeEach(async () => {
     // Create a properly functioning signal mock that can be called as a function
