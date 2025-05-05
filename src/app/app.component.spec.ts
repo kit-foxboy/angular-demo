@@ -4,35 +4,62 @@ import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { provideToastr } from 'ngx-toastr';
 import { provideRouter } from '@angular/router';
-import { AccountService } from './_services/account.service';
-import { User } from './_models/user';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { AccountService } from './_services/account.service';
 
 describe('AppComponent', () => {
   let component: AppComponent;
   let fixture: ComponentFixture<AppComponent>;
+  let accountService: AccountService;
+  let mockCurrentUserSignal: any;
 
   beforeEach(async () => {
+    // Create a properly functioning signal mock that can be called as a function
+    // and also has the set method that can be spied on
+    let currentUserValue: any = null;
+
+    // Create a base function that returns the current user value
+    mockCurrentUserSignal = jasmine
+      .createSpy('currentUserSignal')
+      .and.callFake(() => currentUserValue);
+
+    // Add signal methods
+    mockCurrentUserSignal.set = jasmine
+      .createSpy('set')
+      .and.callFake((val: any) => {
+        currentUserValue = val;
+      });
+    mockCurrentUserSignal.update = jasmine.createSpy('update');
+    mockCurrentUserSignal.mutate = jasmine.createSpy('mutate');
+
+    // Create the account service with our specially crafted signal spy
+    const mockAccountService = jasmine.createSpyObj(
+      'AccountService',
+      ['setCurrentUser'],
+      {
+        currentUser: mockCurrentUserSignal,
+      }
+    );
+
     await TestBed.configureTestingModule({
       imports: [AppComponent],
       providers: [
-        AccountService,
+        { provide: AccountService, useValue: mockAccountService },
         provideHttpClient(),
         provideHttpClientTesting(),
         provideToastr(),
         provideRouter([]),
-        provideAnimations()
+        provideAnimations(),
       ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AppComponent);
     component = fixture.componentInstance;
-    fixture.detectChanges();
+    accountService = TestBed.inject(AccountService);
 
-    // Clear local storage before each test
+    // Mock localStorage methods
     localStorage.clear();
   });
-
 
   // Component tests
   it('should create the app', () => {
@@ -40,56 +67,48 @@ describe('AppComponent', () => {
   });
 
   it('should contain the app-nav component', () => {
+    fixture.detectChanges(); // Important: detect changes before querying elements
     const appNav = fixture.debugElement.nativeElement.querySelector('app-nav');
     expect(appNav).not.toBeNull();
   });
 
   it('should contain the router-outlet component', () => {
+    fixture.detectChanges(); // Important: detect changes before querying elements
     const router =
       fixture.debugElement.nativeElement.querySelector('router-outlet');
     expect(router).not.toBeNull();
   });
 
   it('should set the current user on init if user is in local storage', () => {
-    const accountService = TestBed.inject(AccountService);
-
     // Mock service methods
-    spyOn(accountService.currentUser, 'set').and.callThrough();
+    const user = { username: 'testuser', token: 'testtoken' };
     spyOn(component, 'setCurrentUser').and.callThrough();
-    spyOn(localStorage, 'getItem').and.callThrough();
-
-    // Mock local storage
-    const user = { username: 'testuser', token: 'testtoken' } as User;
-    localStorage.setItem('user', JSON.stringify(user));
+    spyOn(localStorage, 'getItem').and.returnValue(JSON.stringify(user));
 
     // Initialize the component
-    // This will call service methods and local storage methods
-    // to check if the user is in local storage
     component.ngOnInit();
 
     // Make assertions
     expect(component.setCurrentUser).toHaveBeenCalled();
-    expect(accountService.currentUser()).toEqual(user);
-    expect(localStorage.getItem).toHaveBeenCalledWith('user');
     expect(accountService.currentUser.set).toHaveBeenCalledWith(user);
+    expect(localStorage.getItem).toHaveBeenCalledWith('user');
+    expect(accountService.currentUser()).toEqual(user);
   });
 
   it('should not set the current user on init if no user is in local storage', () => {
-    const accountService = TestBed.inject(AccountService);
-
     // Mock service methods
     spyOn(component, 'setCurrentUser').and.callThrough();
     spyOn(localStorage, 'getItem').and.returnValue(null);
-    spyOn(accountService.currentUser, 'set').and.callFake(() => {});
 
     // Initialize the component
-    // This will call service methods and local storage methods
-    // to check if the user is in local storage
     component.ngOnInit();
 
     // Make assertions
     expect(component.setCurrentUser).toHaveBeenCalled();
     expect(localStorage.getItem).toHaveBeenCalledWith('user');
-    expect(accountService.currentUser()).toEqual(null);
+    expect(accountService.currentUser()).toBeNull(); // Should remain null
+    expect(accountService.currentUser.set).not.toHaveBeenCalledWith(
+      jasmine.anything()
+    );
   });
 });
