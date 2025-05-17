@@ -1,1 +1,7 @@
-{}
+{
+  "karmaTestExplorer.enableExtension": true,
+  "karmaTestExplorer.projectWorkspaces": ["."],
+  "karmaTestExplorer.testFiles": [
+    "**/*.spec.ts",
+  ]
+}
