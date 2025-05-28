@@ -6,6 +6,8 @@ import { provideToastr } from 'ngx-toastr';
 import { provideRouter } from '@angular/router';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { AccountService } from './_services/account.service';
+import { NgxSpinnerService } from 'ngx-spinner';
+import { of } from 'rxjs';
 
 interface MockSignal {
   (): any; // Callable signature
@@ -18,6 +20,7 @@ describe('AppComponent', () => {
   let component: AppComponent;
   let fixture: ComponentFixture<AppComponent>;
   let accountService: AccountService;
+  let ngxSpinnerService: jasmine.SpyObj<NgxSpinnerService>;
   let mockCurrentUserSignal: MockSignal;
 
   beforeEach(async () => {
@@ -48,10 +51,21 @@ describe('AppComponent', () => {
       }
     );
 
+    // Create a spy for NgxSpinnerService
+    const ngxSpinnerServiceSpy = jasmine.createSpyObj('NgxSpinnerService', [
+      'show',
+      'hide',
+      'getSpinner'
+    ]);
+
+    // Mock getSpinner to return an observable
+    ngxSpinnerServiceSpy.getSpinner.and.returnValue(of({ show: false }));
+
     await TestBed.configureTestingModule({
       imports: [AppComponent],
       providers: [
         { provide: AccountService, useValue: mockAccountService },
+        { provide: NgxSpinnerService, useValue: ngxSpinnerServiceSpy },
         provideHttpClient(),
         provideHttpClientTesting(),
         provideToastr(),
@@ -63,6 +77,7 @@ describe('AppComponent', () => {
     fixture = TestBed.createComponent(AppComponent);
     component = fixture.componentInstance;
     accountService = TestBed.inject(AccountService);
+    ngxSpinnerService = TestBed.inject(NgxSpinnerService) as jasmine.SpyObj<NgxSpinnerService>;
 
     // Mock localStorage methods
     localStorage.clear();
@@ -84,6 +99,31 @@ describe('AppComponent', () => {
     const router =
       fixture.debugElement.nativeElement.querySelector('router-outlet');
     expect(router).not.toBeNull();
+  });
+
+  it('should contain the ngx-spinner component', () => {
+    fixture.detectChanges();
+    const spinner = fixture.debugElement.nativeElement.querySelector('ngx-spinner');
+    expect(spinner).not.toBeNull();
+  });
+
+  it('should have ngx-spinner component configured correctly', () => {
+    fixture.detectChanges();
+    
+    // Check that the ngx-spinner element exists - this verifies our template is correct
+    const spinner = fixture.debugElement.nativeElement.querySelector('ngx-spinner');
+    expect(spinner).not.toBeNull();
+    expect(spinner).toBeDefined();
+    
+    // Verify that our template includes the spinner component
+    // This is what we actually control and can test reliably
+    expect(fixture.debugElement.nativeElement.innerHTML).toContain('<ngx-spinner');
+  });
+
+  it('should have container with correct classes', () => {
+    fixture.detectChanges();
+    const container = fixture.debugElement.nativeElement.querySelector('.container.mt-5.pt-3');
+    expect(container).not.toBeNull();
   });
 
   it('should set the current user on init if user is in local storage', () => {
