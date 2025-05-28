@@ -26,7 +26,7 @@ describe('MemberEditComponent', () => {
     accountServiceMock = jasmine.createSpyObj('AccountService', [
       'currentUser',
     ]);
-    memberServiceMock = jasmine.createSpyObj('MembersService', ['getMember']);
+    memberServiceMock = jasmine.createSpyObj('MembersService', ['getMember', 'updateMember']);
     toastrMock = jasmine.createSpyObj('ToastrService', ['success']);
 
     accountServiceMock.currentUser.and.returnValue({
@@ -34,6 +34,7 @@ describe('MemberEditComponent', () => {
       token: 'test-token',
     });
     memberServiceMock.getMember.and.returnValue(of(mockMember));
+    memberServiceMock.updateMember.and.returnValue(of(mockMember));
 
     await TestBed.configureTestingModule({
       imports: [MemberEditComponent],
@@ -71,6 +72,7 @@ describe('MemberEditComponent', () => {
     component.updateMember();
 
     // Verify results
+    expect(memberServiceMock.updateMember).toHaveBeenCalledWith(mockMember);
     expect(toastrMock.success).toHaveBeenCalledWith(
       'Profile updated successfully'
     );

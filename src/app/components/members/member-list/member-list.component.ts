@@ -11,24 +11,17 @@ import { first } from 'rxjs';
   styleUrl: './member-list.component.css'
 })
 export class MemberListComponent implements OnInit {
-  private memberService = inject(MembersService);
-  members: Member[] = [];
+  memberService = inject(MembersService);
   
   ngOnInit(): void {
-    this.loadMembers();
+    if (this.memberService.members().length === 0) {
+      this.loadMembers();
+    }
   }
 
   // Load the list of members using the memberService
   // and set the main photo for each member
   loadMembers() {
-    this.memberService.getMembers().pipe(first()).subscribe({
-      next: (members) => {
-        this.members = members;
-        this.members.forEach(member => {
-          member.mainPhoto = member.photos.find(p => p.isMain);
-        });
-      },
-      error: (err) => console.error('Error loading members', err),
-    });
+    this.memberService.getMembers();
   }
 }
